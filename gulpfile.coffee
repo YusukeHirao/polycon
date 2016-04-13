@@ -7,7 +7,6 @@ babel = require 'gulp-babel'
 uglify = require 'gulp-uglify'
 rename = require 'gulp-rename'
 header = require 'gulp-header'
-qunit = require 'gulp-qunit'
 moment = require 'moment'
 runSequence = require 'run-sequence'
 git = require 'git-rev-sync'
@@ -54,10 +53,6 @@ gulp.task 'compress', ->
     .pipe gulp.dest './dist/'
     .pipe gulp.dest "./dist/v#{pkg.version}/"
 
-gulp.task 'test', ->
-  gulp.src './test/*.html'
-    .pipe qunit timeout: 30
-
 gulp.task 'dev-ts', (cb) -> runSequence(
   'ts',
   cb
@@ -81,6 +76,5 @@ gulp.task 'build', (cb) -> runSequence(
 
 gulp.task 'default', (cb) -> runSequence(
   'build',
-  'test',
   cb
 )

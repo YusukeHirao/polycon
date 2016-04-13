@@ -1,21 +1,23 @@
 import 'core-js/fn/weak-map';
-import * as types from './types';
+import FlexPointList from './FlexPointList';
+import { DOMSelector, Point, UpdateInfo } from './types';
 
 const rootMap: WeakMap<Polycon, Element> = new WeakMap;
+const svgMap: WeakMap<Polycon, SVGSVGElement> = new WeakMap;
 const backgroundMap: WeakMap<Polycon, SVGRectElement> = new WeakMap;
 const polygonMap: WeakMap<Polycon, SVGPolygonElement> = new WeakMap;
 
 export default class Polycon {
 
-	public id: string;
+	private _id: string;
 
-	public points: string;
+	private _width: number;
 
-	public width: number;
+	private _height: number;
 
-	public height: number;
+	private _points: FlexPointList;
 
-	public static new (selector: types.DOMSelector): Polycon | Polycon[] {
+	public static new (selector: DOMSelector): Polycon | Polycon[] {
 		let nodeList: NodeListOf<Element>;
 		if (selector instanceof Node) {
 			return new Polycon(selector);
@@ -40,12 +42,13 @@ export default class Polycon {
 			throw new TypeError(`Invalid argument type`);
 		}
 		const rect: ClientRect = el.getBoundingClientRect();
-		this.id = Math.round(Date.now() * Math.random()).toString(36);
+		this._id = createUUID();
+		this._width = rect.width;
+		this._height = rect.height;
 		this.el = el;
-		this.points = el.getAttribute('data-points');
-		this.width = rect.width;
-		this.height = rect.height;
-		this.createSVG();
+		this._createSVG();
+		this._points = new FlexPointList(el.getAttribute('data-points'));
+		this._update();
 	}
 
 	public set el (el: Element) {
@@ -58,6 +61,14 @@ export default class Polycon {
 
 	public get innerHTML (): string {
 		return this.el.innerHTML;
+	}
+
+	public set svg (svg: SVGSVGElement) {
+		svgMap.set(this, svg);
+	}
+
+	public get svg (): SVGSVGElement {
+		return svgMap.get(this);
 	}
 
 	public set polygon (polygon: SVGPolygonElement) {
@@ -88,17 +99,17 @@ export default class Polycon {
 	 * </svg>
 	 * ```
 	 */
-	public createSVG (): void {
+	private _createSVG (): void {
 		const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
 		const SVG_LENGTHTYPE_PERCENTAGE: number = SVGLength.SVG_LENGTHTYPE_PERCENTAGE;
-		const filterId: string = `filter-${this.id}`;
-		const clipId: string = `clip-${this.id}`;
-		const feResultId: string = `fe-result-${this.id}`;
+		const filterId: string = `filter-${this._id}`;
+		const clipId: string = `clip-${this._id}`;
+		const feResultId: string = `fe-result-${this._id}`;
 
 		const svg: SVGSVGElement = createSVGElement('svg') as SVGSVGElement;
 		svg.setAttribute('role', 'presentation');
-		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this.width);
-		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this.height);
+		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
+		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
 
 		const defs: SVGDefsElement = createSVGElement('defs') as SVGDefsElement;
 
@@ -130,25 +141,25 @@ export default class Polycon {
 		clipPath.setAttribute('clip-rule', 'evenodd');
 
 		const polygon: SVGPolygonElement = createSVGElement('polygon') as SVGPolygonElement;
-		let p: SVGPoint = svg.createSVGPoint();
-		p.x = 0;
-		p.y = 30;
-		polygon.points.appendItem(p);
-		p = svg.createSVGPoint();
-		p.x = 40;
-		p.y = 50;
-		polygon.points.appendItem(p);
-		p = svg.createSVGPoint();
-		p.x = 400;
-		p.y = 0;
-		polygon.points.appendItem(p);
-		p = svg.createSVGPoint();
-		p.x = 400;
-		p.y = 300;
-		polygon.points.appendItem(p);
-		p.x = 0;
-		p.y = 300;
-		polygon.points.appendItem(p);
+		// let p: SVGPoint = svg.createSVGPoint();
+		// p.x = 0;
+		// p.y = 30;
+		// polygon.points.appendItem(p);
+		// p = svg.createSVGPoint();
+		// p.x = 40;
+		// p.y = 50;
+		// polygon.points.appendItem(p);
+		// p = svg.createSVGPoint();
+		// p.x = 400;
+		// p.y = 0;
+		// polygon.points.appendItem(p);
+		// p = svg.createSVGPoint();
+		// p.x = 400;
+		// p.y = 300;
+		// polygon.points.appendItem(p);
+		// p.x = 0;
+		// p.y = 300;
+		// polygon.points.appendItem(p);
 
 		const rect: SVGRectElement = createSVGElement('rect') as SVGRectElement;
 		rect.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
@@ -167,7 +178,21 @@ export default class Polycon {
 		svg.appendChild(rect);
 		this.el.appendChild(svg);
 
+		this.svg = svg;
 		this.polygon = polygon;
+	}
+
+	private _update (): void {
+		const l: number = this._points.length;
+		for (let i: number = 0; i < l; i++) {
+			const { isChanged, newPoint }: UpdateInfo = this._points.isUpdated(i, this._width, this._height);
+			if (isChanged) {
+				const point: SVGPoint = this.svg.createSVGPoint();
+				point.x = newPoint.x;
+				point.y = newPoint.y;
+				this.polygon.points.replaceItem(point, i);
+			}
+		}
 	}
 
 }
@@ -175,4 +200,9 @@ export default class Polycon {
 function createSVGElement (qualifiedName: string): SVGElement {
 	'use strict';
 	return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName);
+}
+
+function createUUID (): string {
+	'use strict';
+	return Math.round(Date.now() * Math.random()).toString(36);
 }

@@ -17,3 +17,8 @@ export interface Point {
 	 */
 	y: number;
 }
+
+export interface UpdateInfo {
+	isChanged: boolean;
+	newPoint: Point;
+}

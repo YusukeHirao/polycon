@@ -11,9 +11,6 @@ describe('construction', () => {
 
 	it('new Polycon()', () => {
 		const el = document.getElementById('polycon');
-		el.style.width = '400px';
-		el.style.height = '300px';
-		// el.style.backgroundColor = 'red';
 		const polycon = new Polycon(el);
 		console.log(polycon.innerHTML);
 	});
