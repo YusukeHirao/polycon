@@ -1,8 +1,8 @@
 {
   "name": "polycon",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Insert a polygonal container to DOM.",
-  "main": "dest/index.js",
+  "main": "lib/Polycon.js",
   "scripts": {
     "test": "karma start"
   },
@@ -13,7 +13,8 @@
   "keywords": [
     "polygon",
     "browser",
-    "svg"
+    "svg",
+    "rwd"
   ],
   "author": "Yusuke Hirao",
   "website": "https://github.com/baserproject/",

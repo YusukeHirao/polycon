@@ -1,13 +1,12 @@
 import 'core-js/fn/weak-map';
 import FlexPointList from './FlexPointList';
-import { DOMSelector, Point, UpdateInfo } from './types';
+import { DOMSelector, UpdateInfo } from './types';
 
 const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
 const SVG_LENGTHTYPE_PERCENTAGE: number = SVGLength.SVG_LENGTHTYPE_PERCENTAGE;
 
 const rootMap: WeakMap<Polycon, Element> = new WeakMap;
 const svgMap: WeakMap<Polycon, SVGSVGElement> = new WeakMap;
-const backgroundMap: WeakMap<Polycon, SVGRectElement> = new WeakMap;
 const polygonMap: WeakMap<Polycon, SVGPolygonElement> = new WeakMap;
 
 export default class Polycon {

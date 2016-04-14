@@ -48,8 +48,17 @@ method|parameter|return
 ### HTML Markup
 
 ```html
+<!-- basic -->
 <div class="polycon" data-points="0,0 50%,50% w,0 w,h 0,h">
 	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur quis temporibus dicta illo magnam consequuntur quod tempora non dolorum, libero voluptas, aliquam ipsum quam eius quae error sequi, unde alias.</p>
+</div>
+
+<!-- mediaquery -->
+<div class="polycon" data-points="
+	@media default { 0,0 50%,50% w,0 w,h 0,h }
+	@media (max-width: 640px) { 0,0 50%,90% w,0 w,h 0,h }
+	@media (orientation: landscape) { 10,10 50%,50%, w-10,10 w-10,h-10 10,h-10 }">
+	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quae, mollitia nesciunt vero voluptates natus? Accusamus assumenda rem consectetur. Ullam sapiente voluptatibus praesentium deleniti quae culpa ab consequatur perferendis iste quam.</p>
 </div>
 ```
 

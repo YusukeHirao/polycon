@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>test</title>
+	<meta name="viewport" content="width=device-width">
+</head>
+<body>
+	<style>
+	#polycon {
+		width: 100%;
+		height: 500px;
+		background: url(resource/img.png);
+	}
+	@media (orientation: landscape) {
+		#polycon {
+			height: 200px;
+		}
+	}
+	</style>
+	<div id="polycon" data-points="
+		@media default { 0,0 50%,50% w,0 w,h 0,h }
+		@media (max-width: 640px) { 0,0 50%,90% w,0 w,h 0,h }
+		@media (orientation: landscape) { 10,10 50%,50%, w-10,10 w-10,h-10 10,h-10 }"></div>
+	<script src="../dist/polycon.js"></script>
+	<script>
+	(function () {
+		polycon('#polycon');
+	})();
+	</script>
+</body>
+</html>
