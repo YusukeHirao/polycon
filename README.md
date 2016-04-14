@@ -20,7 +20,7 @@ const polycon = new Polycon(document.querySelector('.polycon'));
 #### API
 
 Method|parameter|return
----|---
+---|---|---
 `new Polycon(element)`|element: `HTMLElement`|`Polycon`
 `Polycon.new(selector)`|selector: `string` | `Array<Polycon>`
 `Polycon.new(element)`|element: `HTMLElement`|`Polycon`
@@ -38,7 +38,7 @@ polycon('.polycon');
 #### API
 
 Method|parameter|return
----|---
+---|---|---
 `polycon(selector)`|selector: `string` | `Array<Polycon>`
 `polycon(element)`|element: `HTMLElement`|`Polycon`
 `polycon(nodeList)`|nodeList: `NodeList<HTMLElement>`|`Array<Polycon>`
