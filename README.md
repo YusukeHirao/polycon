@@ -7,6 +7,8 @@ polycon
 
 Insert a polygonal container to DOM.
 
+* * *
+
 ## Usage
 
 ### ES module
@@ -19,7 +21,7 @@ const polycon = new Polycon(document.querySelector('.polycon'));
 
 #### API
 
-Method|parameter|return
+method|parameter|return
 ---|---|---
 `new Polycon(element)`|element: `HTMLElement`|`Polycon`
 `Polycon.new(selector)`|selector: `string` | `Array<Polycon>`
@@ -37,11 +39,45 @@ polycon('.polycon');
 
 #### API
 
-Method|parameter|return
+method|parameter|return
 ---|---|---
 `polycon(selector)`|selector: `string` | `Array<Polycon>`
 `polycon(element)`|element: `HTMLElement`|`Polycon`
 `polycon(nodeList)`|nodeList: `NodeList<HTMLElement>`|`Array<Polycon>`
+
+### HTML Markup
+
+```html
+<div class="polycon" data-points="0,0 50%,50% w,0 w,h 0,h">
+	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur quis temporibus dicta illo magnam consequuntur quod tempora non dolorum, libero voluptas, aliquam ipsum quam eius quae error sequi, unde alias.</p>
+</div>
+```
+
+#### Required attributes
+
+mame|value|description
+---|---|---
+`data-points`|flex points|`points` attribute value of the extended to the `<polygon>` svg elements so as to correspond to a relative value
+
+### Style
+
+```css
+.polycon {
+	position: relative; /* REQUIRED: Must other than "static" */
+	width: 400px; /* REQUIRED */
+	height: 300px; /* REQUIRED */
+}
+.polycon > * {
+	position: relative; /* REQUIRED: Must other than "static" */
+	z-index: 0; /* REQUIRED */
+}
+.polycon > svg {
+	position: absolute; /* REQUIRED */
+	top: 0; /* REQUIRED */
+	left: 0; /* REQUIRED */
+	z-index: -1; /* REQUIRED */
+}
+```
 
 * * *
 
