@@ -5,9 +5,9 @@ import { Point, UpdateInfo } from './types';
 
 export default class FlexPointList {
 
-	private _flexPoints: FlexPoint[];
+	private _flexPoints: FlexPoint[] = [];
 
-	private _currentAbsPoints: Point[];
+	private _currentAbsPoints: Point[] = [];
 
 	constructor (points: string) {
 		this._parse(points);
@@ -26,11 +26,12 @@ export default class FlexPointList {
 		if (flex) {
 			const updated: Point = flex.evaluate(width, height);
 			const current: Point = this._currentAbsPoints[index];
-			if (updated.x !== current.x && updated.y !== updated.y) {
+			if (updated.x !== current.x || updated.y !== updated.y) {
 				info.isChanged = true;
-				info.newPoint = updated;
-				this._currentAbsPoints[index] = updated;
 			}
+			this._currentAbsPoints[index].x = updated.x;
+			this._currentAbsPoints[index].y = updated.y;
+			info.newPoint = updated;
 		} else {
 			if (window.console) {
 				window.console.warn(`[${index}]th point is undefined`);

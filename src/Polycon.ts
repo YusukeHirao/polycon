@@ -2,6 +2,9 @@ import 'core-js/fn/weak-map';
 import FlexPointList from './FlexPointList';
 import { DOMSelector, Point, UpdateInfo } from './types';
 
+const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
+const SVG_LENGTHTYPE_PERCENTAGE: number = SVGLength.SVG_LENGTHTYPE_PERCENTAGE;
+
 const rootMap: WeakMap<Polycon, Element> = new WeakMap;
 const svgMap: WeakMap<Polycon, SVGSVGElement> = new WeakMap;
 const backgroundMap: WeakMap<Polycon, SVGRectElement> = new WeakMap;
@@ -16,6 +19,15 @@ export default class Polycon {
 	private _height: number;
 
 	private _points: FlexPointList;
+
+	private _backgroundImage: string;
+
+	private _backgroundColor: string;
+
+	/**
+	 * ID number of requestAnimationFrame
+	 */
+	private _rafid: number;
 
 	public static new (selector: DOMSelector): Polycon | Polycon[] {
 		let nodeList: NodeListOf<Element>;
@@ -46,9 +58,10 @@ export default class Polycon {
 		this._width = rect.width;
 		this._height = rect.height;
 		this.el = el;
+		this._styleTransport();
 		this._createSVG();
-		this._points = new FlexPointList(el.getAttribute('data-points'));
-		this._update();
+		this._setPoints(el.getAttribute('data-points'));
+		window.addEventListener('resize', this._onResize.bind(this), false);
 	}
 
 	public set el (el: Element) {
@@ -79,6 +92,18 @@ export default class Polycon {
 		return polygonMap.get(this);
 	}
 
+	private _styleTransport (): void {
+		const el: HTMLElement = this.el as HTMLElement;
+		this._backgroundImage = getBackgroundImagePath(el);
+		if (this._backgroundImage) {
+			el.style.setProperty('background-image', 'none');
+		}
+		this._backgroundColor = getBackgroundColor(el);
+		if (this._backgroundColor) {
+			el.style.setProperty('background-color', 'transparent');
+		}
+	}
+
 	/**
 	 *
 	 * ```html
@@ -100,8 +125,6 @@ export default class Polycon {
 	 * ```
 	 */
 	private _createSVG (): void {
-		const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
-		const SVG_LENGTHTYPE_PERCENTAGE: number = SVGLength.SVG_LENGTHTYPE_PERCENTAGE;
 		const filterId: string = `filter-${this._id}`;
 		const clipId: string = `clip-${this._id}`;
 		const feResultId: string = `fe-result-${this._id}`;
@@ -111,87 +134,112 @@ export default class Polycon {
 		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
 		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
 
+		const rect: SVGRectElement = createSVGElement('rect') as SVGRectElement;
+		rect.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+		rect.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+		rect.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
+		rect.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
+
 		const defs: SVGDefsElement = createSVGElement('defs') as SVGDefsElement;
-
-		const filter: SVGFilterElement = createSVGElement('filter') as SVGFilterElement;
-		filter.id = filterId;
-		filter.setAttribute('filterUnits', 'userSpaceOnUse');
-		filter.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		filter.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		filter.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-		filter.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-
-		const feImage: SVGFEImageElement = createSVGElement('feImage') as SVGFEImageElement;
-		feImage.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		feImage.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		feImage.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
-		feImage.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
-		feImage.href.baseVal = 'base/test/fixtures/resource/img.png';
-		feImage.result.baseVal = feResultId;
-
-		const feTile: SVGFETileElement = createSVGElement('feTile') as SVGFETileElement;
-		feTile.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		feTile.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		feTile.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
-		feTile.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
-		feTile.in1.baseVal = feResultId;
 
 		const clipPath: SVGClipPathElement = createSVGElement('clipPath') as SVGClipPathElement;
 		clipPath.id = clipId;
 		clipPath.setAttribute('clip-rule', 'evenodd');
 
 		const polygon: SVGPolygonElement = createSVGElement('polygon') as SVGPolygonElement;
-		// let p: SVGPoint = svg.createSVGPoint();
-		// p.x = 0;
-		// p.y = 30;
-		// polygon.points.appendItem(p);
-		// p = svg.createSVGPoint();
-		// p.x = 40;
-		// p.y = 50;
-		// polygon.points.appendItem(p);
-		// p = svg.createSVGPoint();
-		// p.x = 400;
-		// p.y = 0;
-		// polygon.points.appendItem(p);
-		// p = svg.createSVGPoint();
-		// p.x = 400;
-		// p.y = 300;
-		// polygon.points.appendItem(p);
-		// p.x = 0;
-		// p.y = 300;
-		// polygon.points.appendItem(p);
 
-		const rect: SVGRectElement = createSVGElement('rect') as SVGRectElement;
-		rect.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		rect.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		rect.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-		rect.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-		rect.setAttribute('filter', `url(#${filterId})`);
 		rect.setAttribute('clip-path', `url(#${clipId})`);
 
-		filter.appendChild(feImage);
-		filter.appendChild(feTile);
 		clipPath.appendChild(polygon);
-		defs.appendChild(filter);
 		defs.appendChild(clipPath);
 		svg.appendChild(defs);
 		svg.appendChild(rect);
+
+		if (this._backgroundImage) {
+			const filter: SVGFilterElement = createSVGElement('filter') as SVGFilterElement;
+			filter.id = filterId;
+			filter.setAttribute('filterUnits', 'userSpaceOnUse');
+			filter.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+			filter.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+			filter.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
+			filter.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
+
+			const feImage: SVGFEImageElement = createSVGElement('feImage') as SVGFEImageElement;
+			feImage.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+			feImage.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+			feImage.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
+			feImage.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
+			feImage.href.baseVal = this._backgroundImage;
+			feImage.result.baseVal = feResultId;
+
+			const feTile: SVGFETileElement = createSVGElement('feTile') as SVGFETileElement;
+			feTile.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+			feTile.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+			feTile.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
+			feTile.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
+			feTile.in1.baseVal = feResultId;
+
+			rect.setAttribute('filter', `url(#${filterId})`);
+
+			filter.appendChild(feImage);
+			filter.appendChild(feTile);
+			defs.appendChild(filter);
+
+		} else if (this._backgroundColor) {
+
+			rect.setAttribute('fill', this._backgroundColor);
+
+		}
+
 		this.el.appendChild(svg);
 
 		this.svg = svg;
 		this.polygon = polygon;
 	}
 
-	private _update (): void {
+	private _setPoints (points: string): void {
+		this._points = new FlexPointList(points);
 		const l: number = this._points.length;
+		const pointsAttr: SVGPointList = this.polygon.points;
+		for (let i: number = 0; i < l; i++) {
+			const { newPoint }: UpdateInfo = this._points.isUpdated(i, this._width, this._height);
+			const point: SVGPoint = this.svg.createSVGPoint();
+			point.x = newPoint.x;
+			point.y = newPoint.y;
+			pointsAttr.appendItem(point);
+		}
+	}
+
+	private _update (): void {
+		const rect: ClientRect = this.el.getBoundingClientRect();
+		this._width = rect.width;
+		this._height = rect.height;
+
+		const svg: SVGSVGElement = this.svg;
+		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
+		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
+
+		const l: number = this._points.length;
+		const pointsAttr: SVGPointList = this.polygon.points;
 		for (let i: number = 0; i < l; i++) {
 			const { isChanged, newPoint }: UpdateInfo = this._points.isUpdated(i, this._width, this._height);
 			if (isChanged) {
 				const point: SVGPoint = this.svg.createSVGPoint();
 				point.x = newPoint.x;
 				point.y = newPoint.y;
-				this.polygon.points.replaceItem(point, i);
+				pointsAttr.replaceItem(point, i);
 			}
+		}
+	}
+
+	private _onResize (e: UIEvent): void {
+		if (window.requestAnimationFrame) {
+			if (window.cancelAnimationFrame) {
+				cancelAnimationFrame(this._rafid);
+			}
+			this._rafid = window.requestAnimationFrame(this._update.bind(this));
+		} else {
+			this._update();
 		}
 	}
 
@@ -205,4 +253,26 @@ function createSVGElement (qualifiedName: string): SVGElement {
 function createUUID (): string {
 	'use strict';
 	return Math.round(Date.now() * Math.random()).toString(36);
+}
+
+function getBackgroundImagePath (el: HTMLElement): string {
+	'use strict';
+	const style: CSSStyleDeclaration = window.getComputedStyle(el);
+	const styleValue: string = style.getPropertyValue('background-image');
+	if (!styleValue) {
+		return '';
+	}
+	const matchArray: RegExpMatchArray = styleValue.match(/url\(("|')?([^\)]*)\1\)/);
+	if (!matchArray) {
+		return '';
+	}
+	const [ , , path]: string[] = matchArray;
+	return path || '';
+}
+
+function getBackgroundColor (el: HTMLElement): string {
+	'use strict';
+	const style: CSSStyleDeclaration = window.getComputedStyle(el);
+	const colorCode: string = style.getPropertyValue('background-color');
+	return colorCode || '';
 }

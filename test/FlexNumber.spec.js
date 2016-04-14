@@ -1,7 +1,7 @@
 /* global describe, it */
 
 import assert from 'power-assert';
-import FlexNumber from '../out/FlexNumber';
+import FlexNumber from '../lib/FlexNumber';
 
 describe('Parse', () => {
 	it('absolute number 0', () => {

@@ -31,10 +31,10 @@ gulp.task 'ts', ->
   project.src()
     .pipe ts project
     .pipe babel presets: ['es2015']
-    .pipe gulp.dest './out/'
+    .pipe gulp.dest './lib/'
 
 gulp.task 'pack', ->
-  gulp.src './out/index.js'
+  gulp.src './lib/index.js'
     .pipe wpGilp
       plugins: [
         new webpack.optimize.DedupePlugin()

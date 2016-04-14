@@ -9,7 +9,7 @@
 	#polycon {
 		width: 100%;
 		height: 500px;
-		background: url(/base/test/fixtures/resource/img.png);
+		background: url(resource/img.png);
 	}
 	#polycon2 {
 		width: 100%;
@@ -19,5 +19,11 @@
 	</style>
 	<div id="polycon" class="polycon" data-points="0,0 50%,50% w,0 w,h 0,h"></div>
 	<div id="polycon2" class="polycon" data-points="0,0 w,0 w,h 50%,50% 0,h"></div>
+	<script src="../dist/polycon.min.js"></script>
+	<script>
+	(function () {
+		polycon('.polycon');
+	})();
+	</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 /* global describe, it */
 
 import assert from 'power-assert';
-import FlexPoint from '../out/FlexPoint';
+import FlexPoint from '../lib/FlexPoint';
 
 describe('Evaluate', () => {
 	it('(x,y)(30,40) => (30,40)', () => {
