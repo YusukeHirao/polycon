@@ -68,23 +68,24 @@ mame|value|description
 ---|---|---
 `data-points`|flex points|`points` attribute value of the extended to the `<polygon>` svg elements so as to correspond to a relative value
 
-### Style
+### StyleSheet
+
+Automatically define into `<style>` element.
 
 ```css
-.polycon {
-	position: relative; /* REQUIRED: Must other than "static" */
-	width: 400px; /* REQUIRED */
-	height: 300px; /* REQUIRED */
+[data-polycon-node="root"] {
+	position: relative;
+	background: none !important;
 }
-.polycon > * {
-	position: relative; /* REQUIRED: Must other than "static" */
-	z-index: 0; /* REQUIRED */
+[data-polycon-node="root"] > * {
+	position: relative;
+	z-index: 1;
 }
-.polycon > svg {
-	position: absolute; /* REQUIRED */
-	top: 0; /* REQUIRED */
-	left: 0; /* REQUIRED */
-	z-index: -1; /* REQUIRED */
+[data-polycon-node="root"] > [data-polycon-node="background"] {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
 }
 ```
 
