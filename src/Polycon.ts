@@ -198,10 +198,10 @@ export default class Polycon {
 
 	private _onLoadedImage ({ width, height }: HTMLImageElement, pattern: SVGPatternElement, image: SVGImageElement): void {
 		const ratio: number = window.devicePixelRatio || 1;
-		pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width * ratio);
-		pattern.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height * ratio);
-		image.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width * ratio);
-		image.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height * ratio);
+		pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width / ratio);
+		pattern.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height / ratio);
+		image.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width / ratio);
+		image.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height / ratio);
 	}
 
 	private _setStyle (): void {
