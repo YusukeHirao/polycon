@@ -6,15 +6,20 @@
 </head>
 <body>
 	<style>
+	* {
+		box-sizing: border-box;
+		padding: 0;
+		margin: 0;
+	}
 	#polycon {
 		width: 100%;
-		height: 500px;
 		background: url(resource/img.png);
+		padding: 50% 10px 0;
 	}
 	#polycon2 {
 		width: 100%;
-		height: 500px;
 		background: #f00;
+		padding: 0 10px 50%;
 	}
 	</style>
 	<svg width="100" height="100">
@@ -22,8 +27,17 @@
 		<circle fill="blue" r="30"></circle>
 		<polygon fill="yellow" points="0,0 5,5 0,10 10,10 10,0"></polygon>
 	</svg>
-	<div id="polycon" class="polycon" data-points="0,0 50%,50% w,0 w,h 0,h"></div>
-	<div id="polycon2" class="polycon" data-points="0,0 w,0 w,h 50%,50% 0,h"></div>
+	<div id="polycon" class="polycon" data-points="0,0 50%,50% w,0 w,h 0,h">
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse dolor eum dolorum dolores, accusantium explicabo expedita temporibus voluptatibus pariatur culpa, iste quae facere commodi. Aspernatur obcaecati porro ullam quia, aliquid?</p>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae quos eum dicta laudantium facere fugiat exercitationem inventore voluptatibus voluptatum rerum provident distinctio quis soluta, suscipit consectetur, molestias consequatur numquam ducimus!</p>
+	</div>
+	<div id="polycon2" class="polycon" data-points="0,0 w,0 w,h 50%,50% 0,h">
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iure accusamus iusto totam vel ipsam accusantium commodi vitae deserunt cupiditate, saepe illum, id assumenda doloremque quos iste fuga quibusdam quasi consequuntur.</p>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Corrupti architecto itaque doloremque est quaerat fugit, laboriosam nobis. Laborum eum voluptate nisi, iure tempora dolorum aperiam id vero, repellendus, itaque voluptas.</p>
+		<blockquote>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nemo ullam tempore veritatis nulla quidem eaque quia, amet unde maxime, id non alias dignissimos sequi cumque officia eius velit voluptates illum.</p>
+		</blockquote>
+	</div>
 	<script src="../dist/polycon.js"></script>
 	<script>
 	(function () {
