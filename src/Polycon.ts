@@ -3,7 +3,13 @@ import FlexPointList from './FlexPointList';
 import { DOMSelector, UpdateInfo } from './types';
 
 const NS_SVG: string = 'http://www.w3.org/2000/svg';
-const PRIORITY_IMPORTANT: string = 'important';
+const ATTRIBUTE_NAME: string = 'data-polycon-node';
+const STYLE_NODE_NAME: string = 'style';
+const ROOT_NODE_NAME: string = 'root';
+const BACKGROUND_NODE_NAME: string = 'background';
+const STYLE_SELECTOR: string = `[${ATTRIBUTE_NAME}="${STYLE_NODE_NAME}"]`;
+const ROOT_SELECTOR: string = `[${ATTRIBUTE_NAME}="${ROOT_NODE_NAME}"]`;
+const BACKGROUND_SELECTOR: string = `[${ATTRIBUTE_NAME}="${BACKGROUND_NODE_NAME}"]`;
 const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
 
 const rootMap: WeakMap<Polycon, Element> = new WeakMap;
@@ -86,6 +92,8 @@ export default class Polycon {
 		this._styleTransport();
 		this._createSVG();
 		this._setPoints(el.getAttribute('data-points'));
+		this._setStyle();
+		el.setAttribute(ATTRIBUTE_NAME, ROOT_NODE_NAME);
 		window.addEventListener('resize', this._onResize.bind(this), false);
 	}
 
@@ -120,13 +128,7 @@ export default class Polycon {
 	private _styleTransport (): void {
 		const el: HTMLElement = this.el as HTMLElement;
 		this._backgroundImage = Polycon._getBackgroundImagePath(el);
-		if (this._backgroundImage) {
-			el.style.setProperty('background-image', 'none', PRIORITY_IMPORTANT);
-		}
 		this._backgroundColor = Polycon._getBackgroundColor(el);
-		if (this._backgroundColor) {
-			el.style.setProperty('background-color', 'transparent', PRIORITY_IMPORTANT);
-		}
 	}
 
 	/**
@@ -147,6 +149,7 @@ export default class Polycon {
 
 		const svg: SVGSVGElement = document.createElementNS(NS_SVG, 'svg') as SVGSVGElement;
 		svg.setAttribute('role', 'presentation');
+		svg.setAttribute(ATTRIBUTE_NAME, BACKGROUND_NODE_NAME);
 		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
 		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
 
@@ -171,7 +174,7 @@ export default class Polycon {
 		this.polygon = polygon;
 	}
 
-	private _patternImage (svg: SVGSVGElement, id: string) {
+	private _patternImage (svg: SVGSVGElement, id: string): void {
 		const defs: SVGDefsElement = document.createElementNS(NS_SVG, 'defs') as SVGDefsElement;
 		const pattern: SVGPatternElement = document.createElementNS(NS_SVG, 'pattern') as SVGPatternElement;
 		pattern.id = id;
@@ -193,12 +196,26 @@ export default class Polycon {
 		img.src = this._backgroundImage;
 	}
 
-	private _onLoadedImage ({ width, height }: HTMLImageElement, pattern: SVGPatternElement, image: SVGImageElement) {
+	private _onLoadedImage ({ width, height }: HTMLImageElement, pattern: SVGPatternElement, image: SVGImageElement): void {
 		const ratio: number = window.devicePixelRatio || 1;
 		pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width * ratio);
 		pattern.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height * ratio);
 		image.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width * ratio);
 		image.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height * ratio);
+	}
+
+	private _setStyle (): void {
+		let style: HTMLStyleElement = document.querySelector(STYLE_SELECTOR) as HTMLStyleElement;
+		if (!style) {
+			const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
+			style = document.createElement('style');
+			style.setAttribute(ATTRIBUTE_NAME, STYLE_NODE_NAME);
+			head.appendChild(style);
+			const sheet: CSSStyleSheet = style.sheet as CSSStyleSheet;
+			sheet.insertRule(`${ROOT_SELECTOR} { position: relative; background: none !important; }`, sheet.rules.length);
+			sheet.insertRule(`${ROOT_SELECTOR} > * { position: relative; z-index: 1; }`, sheet.rules.length);
+			sheet.insertRule(`${ROOT_SELECTOR} > ${BACKGROUND_SELECTOR} { position: absolute; z-index: 0; top: 0; left: 0; }`, sheet.rules.length);
+		}
 	}
 
 	private _setPoints (points: string): void {
