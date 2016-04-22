@@ -3,7 +3,6 @@ import FlexPointList from './FlexPointList';
 import { DOMSelector, UpdateInfo } from './types';
 
 const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
-const SVG_LENGTHTYPE_PERCENTAGE: number = SVGLength.SVG_LENGTHTYPE_PERCENTAGE;
 
 const rootMap: WeakMap<Polycon, Element> = new WeakMap;
 const svgMap: WeakMap<Polycon, SVGSVGElement> = new WeakMap;
@@ -95,11 +94,11 @@ export default class Polycon {
 		const el: HTMLElement = this.el as HTMLElement;
 		this._backgroundImage = getBackgroundImagePath(el);
 		if (this._backgroundImage) {
-			el.style.setProperty('background-image', 'none');
+			el.style.setProperty('background-image', 'none', 'important');
 		}
 		this._backgroundColor = getBackgroundColor(el);
 		if (this._backgroundColor) {
-			el.style.setProperty('background-color', 'transparent');
+			el.style.setProperty('background-color', 'transparent', 'important');
 		}
 	}
 
@@ -108,92 +107,71 @@ export default class Polycon {
 	 * ```html
 	 * <svg class="background-polygon" role="presentation">
 	 * 	<defs>
-	 * 		<filter id="bg04" filterUnits="userSpaceOnUse" x="0" y="0" width="10000" height="10000">
-	 * 			<feImage x="0" y="0" width="4" height="4" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../img/common/bg04.png" result="img"/>
-	 * 			<feTile x="0" y="0" width="100%" height="100%" in="img"/>
-	 * 		</filter>
-	 * 		<clipPath id="clip" clip-rule="evenodd">
-	 * 			<polygon
-	 * 				data-points="   0,-120 71%,0 100%,-120 100%,h+20 29%,h+80 0,h"
-	 * 				data-points-sp="0,-27  71%,0 100%,-27  100%,h+8  29%,h+22 0,h"
-	 * 			>
-	 * 		</clipPath>
+	 * 		<pattern id="bg04" patternUnits="userSpaceOnUse" x="0" y="0" width="4" height="4">
+	 * 			<image x="0" y="0" width="2" height="2" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="bg.png" result="img"/>
+	 * 		</pattern>
 	 * 	</defs>
-	 * 	<rect x="0" y="0" width="10000" height="10000" filter="url(#bg04)" clip-path="url(#clip)">
+	 * 	<polygon data-points="0,-120 71%,0 100%,-120 100%,h+20 29%,h+80 0,h" />
 	 * </svg>
 	 * ```
 	 */
 	private _createSVG (): void {
-		const filterId: string = `filter-${this._id}`;
-		const clipId: string = `clip-${this._id}`;
-		const feResultId: string = `fe-result-${this._id}`;
+		let fill: string;
 
 		const svg: SVGSVGElement = createSVGElement('svg') as SVGSVGElement;
 		svg.setAttribute('role', 'presentation');
 		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
 		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
 
-		const rect: SVGRectElement = createSVGElement('rect') as SVGRectElement;
-		rect.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		rect.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-		rect.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-		rect.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-
-		const defs: SVGDefsElement = createSVGElement('defs') as SVGDefsElement;
-
-		const clipPath: SVGClipPathElement = createSVGElement('clipPath') as SVGClipPathElement;
-		clipPath.id = clipId;
-		clipPath.setAttribute('clip-rule', 'evenodd');
-
 		const polygon: SVGPolygonElement = createSVGElement('polygon') as SVGPolygonElement;
-
-		rect.setAttribute('clip-path', `url(#${clipId})`);
-
-		clipPath.appendChild(polygon);
-		defs.appendChild(clipPath);
-		svg.appendChild(defs);
-		svg.appendChild(rect);
+		svg.appendChild(polygon);
 
 		if (this._backgroundImage) {
-			const filter: SVGFilterElement = createSVGElement('filter') as SVGFilterElement;
-			filter.id = filterId;
-			filter.setAttribute('filterUnits', 'userSpaceOnUse');
-			filter.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-			filter.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-			filter.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-			filter.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-
-			const feImage: SVGFEImageElement = createSVGElement('feImage') as SVGFEImageElement;
-			feImage.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-			feImage.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-			feImage.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
-			feImage.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
-			feImage.href.baseVal = this._backgroundImage;
-			feImage.result.baseVal = feResultId;
-
-			const feTile: SVGFETileElement = createSVGElement('feTile') as SVGFETileElement;
-			feTile.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-			feTile.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-			feTile.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
-			feTile.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
-			feTile.in1.baseVal = feResultId;
-
-			rect.setAttribute('filter', `url(#${filterId})`);
-
-			filter.appendChild(feImage);
-			filter.appendChild(feTile);
-			defs.appendChild(filter);
-
+			const fillId: string = `fill-${this._id}`;
+			this._patternImage(svg, fillId);
+			fill = `url(#${fillId})`;
 		} else if (this._backgroundColor) {
+			fill = this._backgroundColor;
+		}
 
-			rect.setAttribute('fill', this._backgroundColor);
-
+		if (fill) {
+			polygon.setAttribute('fill', fill);
 		}
 
 		this.el.appendChild(svg);
 
 		this.svg = svg;
 		this.polygon = polygon;
+	}
+
+	private _patternImage (svg: SVGSVGElement, id: string) {
+		const defs: SVGDefsElement = createSVGElement('defs') as SVGDefsElement;
+		const pattern: SVGPatternElement = createSVGElement('pattern') as SVGPatternElement;
+		pattern.id = id;
+		pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+		pattern.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+		pattern.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+
+		const image: SVGImageElement = createSVGElement('image') as SVGImageElement;
+		image.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+		image.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+		image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this._backgroundImage);
+
+		pattern.appendChild(image);
+		defs.appendChild(pattern);
+		svg.appendChild(defs);
+
+		const img: HTMLImageElement = new Image;
+		img.onload = this._onLoadedImage.bind(this, img, pattern, image);
+		img.src = this._backgroundImage;
+	}
+
+	private _onLoadedImage ({ width, height }: HTMLImageElement, pattern: SVGPatternElement, image: SVGImageElement) {
+		const ratio: number = window.devicePixelRatio || 1;
+		pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width * ratio);
+		pattern.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height * ratio);
+		image.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width * ratio);
+		image.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height * ratio);
 	}
 
 	private _setPoints (points: string): void {
