@@ -25,7 +25,7 @@ export default class FlexPointList {
 		let points: FlexPoint[] = this._flexPoints['default'];
 		for (const condition in this._flexPoints) {
 			if (this._flexPoints.hasOwnProperty(condition)) {
-				if (condition === 'default') {
+				if (condition === 'default' || !('matchMedia' in window)) {
 					continue;
 				}
 				if (window.matchMedia(condition).matches) {
