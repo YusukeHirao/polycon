@@ -90,4 +90,18 @@ mame|value|description
 
 * * *
 
+# Support browsers
+
+- Chrome
+- Firefox
+- Edge
+- Safari 5.1+
+- Internet Explorer 9<sup>[†](#ie9)</sup> and 11
+- iOS Safari 8+
+- Android Browser 4.0+
+
+<a name="ie9">†</a>: IE9 is not support mediaQuery syntax because that was not support [matchMedia API](http://caniuse.com/#search=matchmedia). Allways refrect default value in that syntax.
+
+* * *
+
 &copy;YusukeHirao([@cloud10designs](https://twitter.com/cloud10designs)), MIT license.
