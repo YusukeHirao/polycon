@@ -2,6 +2,8 @@ import 'core-js/fn/weak-map';
 import FlexPointList from './FlexPointList';
 import { DOMSelector, UpdateInfo } from './types';
 
+const NS_SVG: string = 'http://www.w3.org/2000/svg';
+const PRIORITY_IMPORTANT: string = 'important';
 const SVG_LENGTHTYPE_PX: number = SVGLength.SVG_LENGTHTYPE_PX;
 
 const rootMap: WeakMap<Polycon, Element> = new WeakMap;
@@ -47,12 +49,37 @@ export default class Polycon {
 		return polycons;
 	}
 
+
+	private static _createUUID (): string {
+		return Math.round(Date.now() * Math.random()).toString(36);
+	}
+
+	private static _getBackgroundImagePath (el: HTMLElement): string {
+		const style: CSSStyleDeclaration = window.getComputedStyle(el);
+		const styleValue: string = style.getPropertyValue('background-image');
+		if (!styleValue) {
+			return '';
+		}
+		const matchArray: RegExpMatchArray = styleValue.match(/url\(("|')?([^\)]*)\1\)/);
+		if (!matchArray) {
+			return '';
+		}
+		const [ , , path]: string[] = matchArray;
+		return path || '';
+	}
+
+	private static _getBackgroundColor (el: HTMLElement): string {
+		const style: CSSStyleDeclaration = window.getComputedStyle(el);
+		const colorCode: string = style.getPropertyValue('background-color');
+		return colorCode || '';
+	}
+
 	constructor (el: Element) {
 		if (!(el instanceof Element)) {
 			throw new TypeError(`Invalid argument type`);
 		}
 		const rect: ClientRect = el.getBoundingClientRect();
-		this._id = createUUID();
+		this._id = Polycon._createUUID();
 		this._width = rect.width;
 		this._height = rect.height;
 		this.el = el;
@@ -92,13 +119,13 @@ export default class Polycon {
 
 	private _styleTransport (): void {
 		const el: HTMLElement = this.el as HTMLElement;
-		this._backgroundImage = getBackgroundImagePath(el);
+		this._backgroundImage = Polycon._getBackgroundImagePath(el);
 		if (this._backgroundImage) {
-			el.style.setProperty('background-image', 'none', 'important');
+			el.style.setProperty('background-image', 'none', PRIORITY_IMPORTANT);
 		}
-		this._backgroundColor = getBackgroundColor(el);
+		this._backgroundColor = Polycon._getBackgroundColor(el);
 		if (this._backgroundColor) {
-			el.style.setProperty('background-color', 'transparent', 'important');
+			el.style.setProperty('background-color', 'transparent', PRIORITY_IMPORTANT);
 		}
 	}
 
@@ -118,12 +145,12 @@ export default class Polycon {
 	private _createSVG (): void {
 		let fill: string;
 
-		const svg: SVGSVGElement = createSVGElement('svg') as SVGSVGElement;
+		const svg: SVGSVGElement = document.createElementNS(NS_SVG, 'svg') as SVGSVGElement;
 		svg.setAttribute('role', 'presentation');
 		svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
 		svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
 
-		const polygon: SVGPolygonElement = createSVGElement('polygon') as SVGPolygonElement;
+		const polygon: SVGPolygonElement = document.createElementNS(NS_SVG, 'polygon') as SVGPolygonElement;
 		svg.appendChild(polygon);
 
 		if (this._backgroundImage) {
@@ -145,14 +172,14 @@ export default class Polycon {
 	}
 
 	private _patternImage (svg: SVGSVGElement, id: string) {
-		const defs: SVGDefsElement = createSVGElement('defs') as SVGDefsElement;
-		const pattern: SVGPatternElement = createSVGElement('pattern') as SVGPatternElement;
+		const defs: SVGDefsElement = document.createElementNS(NS_SVG, 'defs') as SVGDefsElement;
+		const pattern: SVGPatternElement = document.createElementNS(NS_SVG, 'pattern') as SVGPatternElement;
 		pattern.id = id;
 		pattern.setAttribute('patternUnits', 'userSpaceOnUse');
 		pattern.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
 		pattern.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
 
-		const image: SVGImageElement = createSVGElement('image') as SVGImageElement;
+		const image: SVGImageElement = document.createElementNS(NS_SVG, 'image') as SVGImageElement;
 		image.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
 		image.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
 		image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this._backgroundImage);
@@ -222,34 +249,3 @@ export default class Polycon {
 
 }
 
-function createSVGElement (qualifiedName: string): SVGElement {
-	'use strict';
-	return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName);
-}
-
-function createUUID (): string {
-	'use strict';
-	return Math.round(Date.now() * Math.random()).toString(36);
-}
-
-function getBackgroundImagePath (el: HTMLElement): string {
-	'use strict';
-	const style: CSSStyleDeclaration = window.getComputedStyle(el);
-	const styleValue: string = style.getPropertyValue('background-image');
-	if (!styleValue) {
-		return '';
-	}
-	const matchArray: RegExpMatchArray = styleValue.match(/url\(("|')?([^\)]*)\1\)/);
-	if (!matchArray) {
-		return '';
-	}
-	const [ , , path]: string[] = matchArray;
-	return path || '';
-}
-
-function getBackgroundColor (el: HTMLElement): string {
-	'use strict';
-	const style: CSSStyleDeclaration = window.getComputedStyle(el);
-	const colorCode: string = style.getPropertyValue('background-color');
-	return colorCode || '';
-}
