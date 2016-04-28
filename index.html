@@ -2,19 +2,38 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<title>polycon</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/monokai-sublime.min.css">
 </head>
 <body>
 
-<h1>polycon</h1>
+<main class="container">
 
-<h3>sample</h3>
-<ul>
-	<li><a href="sample/01.html">01</a></li>
-	<li><a href="sample/02.html">02</a></li>
-</ul>
+	<h1>Polycon</h1>
 
+	<section class="sec01" style="background: #D04D64">
+		<h2>a polygonal container</h2>
+		<pre>
+			<code class="css">
+				.sec01 {
+					background: #D04D64;
+				}
+			</code>
+		</pre>
+	</section>
+
+</main>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+<script src="dist/polycon.min.js"></script>
+<script>
+!function () {
+	'use strict';
+	hljs.initHighlightingOnLoad();
+}();
+</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 /**!
-* polycon - v0.0.1
-* revision: 016d281948e3b193c361622c9aaebe30c2f3d846
-* update: 2016-04-14
+* polycon - v0.1.0
+* revision: 3ae6a73bb87ce9ab734a48e6508d5aae1a6a846b
+* update: 2016-04-23
 * Author: Yusuke Hirao [https://github.com/baserproject/]
 * Github: https://github.com/YusukeHirao/polycon.git
 * License: Licensed under the MIT License
@@ -83,8 +83,15 @@
 
 	__webpack_require__(2);
 	var FlexPointList_1 = __webpack_require__(71);
+	var NS_SVG = 'http://www.w3.org/2000/svg';
+	var ATTRIBUTE_NAME = 'data-polycon-node';
+	var STYLE_NODE_NAME = 'style';
+	var ROOT_NODE_NAME = 'root';
+	var BACKGROUND_NODE_NAME = 'background';
+	var STYLE_SELECTOR = '[' + ATTRIBUTE_NAME + '="' + STYLE_NODE_NAME + '"]';
+	var ROOT_SELECTOR = '[' + ATTRIBUTE_NAME + '="' + ROOT_NODE_NAME + '"]';
+	var BACKGROUND_SELECTOR = '[' + ATTRIBUTE_NAME + '="' + BACKGROUND_NODE_NAME + '"]';
 	var SVG_LENGTHTYPE_PX = SVGLength.SVG_LENGTHTYPE_PX;
-	var SVG_LENGTHTYPE_PERCENTAGE = SVGLength.SVG_LENGTHTYPE_PERCENTAGE;
 	var rootMap = new WeakMap();
 	var svgMap = new WeakMap();
 	var polygonMap = new WeakMap();
@@ -97,13 +104,15 @@
 	            throw new TypeError('Invalid argument type');
 	        }
 	        var rect = el.getBoundingClientRect();
-	        this._id = createUUID();
+	        this._id = Polycon._createUUID();
 	        this._width = rect.width;
 	        this._height = rect.height;
 	        this.el = el;
 	        this._styleTransport();
 	        this._createSVG();
 	        this._setPoints(el.getAttribute('data-points'));
+	        this._setStyle();
+	        el.setAttribute(ATTRIBUTE_NAME, ROOT_NODE_NAME);
 	        window.addEventListener('resize', this._onResize.bind(this), false);
 	    }
 
@@ -111,32 +120,19 @@
 	        key: '_styleTransport',
 	        value: function _styleTransport() {
 	            var el = this.el;
-	            this._backgroundImage = getBackgroundImagePath(el);
-	            if (this._backgroundImage) {
-	                el.style.setProperty('background-image', 'none');
-	            }
-	            this._backgroundColor = getBackgroundColor(el);
-	            if (this._backgroundColor) {
-	                el.style.setProperty('background-color', 'transparent');
-	            }
+	            this._backgroundImage = Polycon._getBackgroundImagePath(el);
+	            this._backgroundColor = Polycon._getBackgroundColor(el);
 	        }
 	        /**
 	         *
 	         * ```html
 	         * <svg class="background-polygon" role="presentation">
 	         * 	<defs>
-	         * 		<filter id="bg04" filterUnits="userSpaceOnUse" x="0" y="0" width="10000" height="10000">
-	         * 			<feImage x="0" y="0" width="4" height="4" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../img/common/bg04.png" result="img"/>
-	         * 			<feTile x="0" y="0" width="100%" height="100%" in="img"/>
-	         * 		</filter>
-	         * 		<clipPath id="clip" clip-rule="evenodd">
-	         * 			<polygon
-	         * 				data-points="   0,-120 71%,0 100%,-120 100%,h+20 29%,h+80 0,h"
-	         * 				data-points-sp="0,-27  71%,0 100%,-27  100%,h+8  29%,h+22 0,h"
-	         * 			>
-	         * 		</clipPath>
+	         * 		<pattern id="bg04" patternUnits="userSpaceOnUse" x="0" y="0" width="4" height="4">
+	         * 			<image x="0" y="0" width="2" height="2" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="bg.png" result="img"/>
+	         * 		</pattern>
 	         * 	</defs>
-	         * 	<rect x="0" y="0" width="10000" height="10000" filter="url(#bg04)" clip-path="url(#clip)">
+	         * 	<polygon data-points="0,-120 71%,0 100%,-120 100%,h+20 29%,h+80 0,h" />
 	         * </svg>
 	         * ```
 	         */
@@ -144,59 +140,74 @@
 	    }, {
 	        key: '_createSVG',
 	        value: function _createSVG() {
-	            var filterId = 'filter-' + this._id;
-	            var clipId = 'clip-' + this._id;
-	            var feResultId = 'fe-result-' + this._id;
-	            var svg = createSVGElement('svg');
+	            var fill = void 0;
+	            var svg = document.createElementNS(NS_SVG, 'svg');
 	            svg.setAttribute('role', 'presentation');
+	            svg.setAttribute(ATTRIBUTE_NAME, BACKGROUND_NODE_NAME);
 	            svg.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._width);
 	            svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
-	            var rect = createSVGElement('rect');
-	            rect.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	            rect.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	            rect.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-	            rect.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-	            var defs = createSVGElement('defs');
-	            var clipPath = createSVGElement('clipPath');
-	            clipPath.id = clipId;
-	            clipPath.setAttribute('clip-rule', 'evenodd');
-	            var polygon = createSVGElement('polygon');
-	            rect.setAttribute('clip-path', 'url(#' + clipId + ')');
-	            clipPath.appendChild(polygon);
-	            defs.appendChild(clipPath);
-	            svg.appendChild(defs);
-	            svg.appendChild(rect);
+	            var polygon = document.createElementNS(NS_SVG, 'polygon');
+	            svg.appendChild(polygon);
 	            if (this._backgroundImage) {
-	                var filter = createSVGElement('filter');
-	                filter.id = filterId;
-	                filter.setAttribute('filterUnits', 'userSpaceOnUse');
-	                filter.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	                filter.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	                filter.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-	                filter.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 10000);
-	                var feImage = createSVGElement('feImage');
-	                feImage.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	                feImage.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	                feImage.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
-	                feImage.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 2);
-	                feImage.href.baseVal = this._backgroundImage;
-	                feImage.result.baseVal = feResultId;
-	                var feTile = createSVGElement('feTile');
-	                feTile.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	                feTile.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
-	                feTile.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
-	                feTile.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PERCENTAGE, 100);
-	                feTile.in1.baseVal = feResultId;
-	                rect.setAttribute('filter', 'url(#' + filterId + ')');
-	                filter.appendChild(feImage);
-	                filter.appendChild(feTile);
-	                defs.appendChild(filter);
+	                var fillId = 'fill-' + this._id;
+	                this._patternImage(svg, fillId);
+	                fill = 'url(#' + fillId + ')';
 	            } else if (this._backgroundColor) {
-	                rect.setAttribute('fill', this._backgroundColor);
+	                fill = this._backgroundColor;
+	            }
+	            if (fill) {
+	                polygon.setAttribute('fill', fill);
 	            }
 	            this.el.appendChild(svg);
 	            this.svg = svg;
 	            this.polygon = polygon;
+	        }
+	    }, {
+	        key: '_patternImage',
+	        value: function _patternImage(svg, id) {
+	            var defs = document.createElementNS(NS_SVG, 'defs');
+	            var pattern = document.createElementNS(NS_SVG, 'pattern');
+	            pattern.id = id;
+	            pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+	            pattern.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+	            pattern.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+	            var image = document.createElementNS(NS_SVG, 'image');
+	            image.x.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+	            image.y.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, 0);
+	            image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this._backgroundImage);
+	            pattern.appendChild(image);
+	            defs.appendChild(pattern);
+	            svg.appendChild(defs);
+	            var img = new Image();
+	            img.onload = this._onLoadedImage.bind(this, img, pattern, image);
+	            img.src = this._backgroundImage;
+	        }
+	    }, {
+	        key: '_onLoadedImage',
+	        value: function _onLoadedImage(_ref, pattern, image) {
+	            var width = _ref.width;
+	            var height = _ref.height;
+
+	            var ratio = window.devicePixelRatio || 1;
+	            pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width / ratio);
+	            pattern.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height / ratio);
+	            image.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width / ratio);
+	            image.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height / ratio);
+	        }
+	    }, {
+	        key: '_setStyle',
+	        value: function _setStyle() {
+	            var style = document.querySelector(STYLE_SELECTOR);
+	            if (!style) {
+	                var head = document.getElementsByTagName('head')[0];
+	                style = document.createElement('style');
+	                style.setAttribute(ATTRIBUTE_NAME, STYLE_NODE_NAME);
+	                head.appendChild(style);
+	                var sheet = style.sheet;
+	                sheet.insertRule(ROOT_SELECTOR + ' { position: relative; background: none !important; }', sheet.rules.length);
+	                sheet.insertRule(ROOT_SELECTOR + ' > * { position: relative; z-index: 1; }', sheet.rules.length);
+	                sheet.insertRule(ROOT_SELECTOR + ' > ' + BACKGROUND_SELECTOR + ' { position: absolute; z-index: 0; top: 0; left: 0; }', sheet.rules.length);
+	            }
 	        }
 	    }, {
 	        key: '_setPoints',
@@ -322,6 +333,37 @@
 
 	            return polycons;
 	        }
+	    }, {
+	        key: '_createUUID',
+	        value: function _createUUID() {
+	            return Math.round(Date.now() * Math.random()).toString(36);
+	        }
+	    }, {
+	        key: '_getBackgroundImagePath',
+	        value: function _getBackgroundImagePath(el) {
+	            var style = window.getComputedStyle(el);
+	            var styleValue = style.getPropertyValue('background-image');
+	            if (!styleValue) {
+	                return '';
+	            }
+	            var matchArray = styleValue.match(/url\(("|')?([^\)]*)\1\)/);
+	            if (!matchArray) {
+	                return '';
+	            }
+
+	            var _matchArray = _slicedToArray(matchArray, 3);
+
+	            var path = _matchArray[2];
+
+	            return path || '';
+	        }
+	    }, {
+	        key: '_getBackgroundColor',
+	        value: function _getBackgroundColor(el) {
+	            var style = window.getComputedStyle(el);
+	            var colorCode = style.getPropertyValue('background-color');
+	            return colorCode || '';
+	        }
 	    }]);
 
 	    return Polycon;
@@ -329,42 +371,6 @@
 
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = Polycon;
-	function createSVGElement(qualifiedName) {
-	    'use strict';
-
-	    return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName);
-	}
-	function createUUID() {
-	    'use strict';
-
-	    return Math.round(Date.now() * Math.random()).toString(36);
-	}
-	function getBackgroundImagePath(el) {
-	    'use strict';
-
-	    var style = window.getComputedStyle(el);
-	    var styleValue = style.getPropertyValue('background-image');
-	    if (!styleValue) {
-	        return '';
-	    }
-	    var matchArray = styleValue.match(/url\(("|')?([^\)]*)\1\)/);
-	    if (!matchArray) {
-	        return '';
-	    }
-
-	    var _matchArray = _slicedToArray(matchArray, 3);
-
-	    var path = _matchArray[2];
-
-	    return path || '';
-	}
-	function getBackgroundColor(el) {
-	    'use strict';
-
-	    var style = window.getComputedStyle(el);
-	    var colorCode = style.getPropertyValue('background-color');
-	    return colorCode || '';
-	}
 
 /***/ },
 /* 2 */
@@ -1813,7 +1819,7 @@
 	            var points = this._flexPoints['default'];
 	            for (var condition in this._flexPoints) {
 	                if (this._flexPoints.hasOwnProperty(condition)) {
-	                    if (condition === 'default') {
+	                    if (condition === 'default' || !('matchMedia' in window)) {
 	                        continue;
 	                    }
 	                    if (window.matchMedia(condition).matches) {
