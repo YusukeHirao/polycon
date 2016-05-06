@@ -1,0 +1,28 @@
+@charset 'utf-8';
+
+body {
+	font-family: Montserrat, sans-serif;
+}
+
+h1 {
+	font-weight: bold;
+}
+
+.container {
+	padding-top: 30px;
+}
+
+[data-polycon] {
+	margin-top: 30px;
+	h2 {
+		color: #fff;
+	}
+}
+
+footer {
+	padding: 30px 0;
+	small {
+		display: block;
+		text-align: center;
+	}
+}

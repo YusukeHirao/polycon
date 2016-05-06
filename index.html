@@ -5,52 +5,93 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<title>polycon</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/monokai-sublime.min.css">
+	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <main class="container">
 
 <h1>Polycon</h1>
+<p>Create polygonal container.</p>
 
 <section
-	data-polycon
-	class="sec01"
-	style="
-		background: #D04D64;
-		padding: 50px;
-	"
-	data-points="
-		0,0 10%,50 20%,0 30%,50 40%,0 50%,50 60%,0 70%,50 80%,0 90%,50
-		w,0
-		w,h 90%,h-50 80%,h 70%,h-50 60%,h 50%,h-50 40%,h 30%,h-50 20%,h 10%,h-50
-		0,h
-	"
-	>
-<h2>a polygonal container</h2>
-<pre>
-<code class="html">&lt;section data-points=&quot;0,0 10%,50 20%,0 30%,50 40%,0 50%,50 60%,0 70%,50 80%,0 90%,50 w,0 w,h 0,h&quot;&gt;...&lt;/section&gt;
-</code>
-</pre>
-<pre>
-<code class="css">.sec01 {
+data-polycon
+class="sec01"
+style="
 	background: #D04D64;
 	padding: 50px;
-}
-</code>
-</pre>
+"
+data-points="
+	0,0 10%,50 20%,0 30%,50 40%,0 50%,50 60%,0 70%,50 80%,0 90%,50
+	w,0
+	w,h 90%,h-50 80%,h 70%,h-50 60%,h 50%,h-50 40%,h 30%,h-50 20%,h 10%,h-50
+	0,h
+">
+	<h2>Standard</h2>
+</section>
+
+<section
+data-polycon
+class="sec02"
+style="
+	background: rgb(12, 95, 204);
+	padding: 100px 50px;
+"
+data-points="
+	@media default {
+		0,0 50%,100 w,0 w,h 50%,h-100 0,h
+	}
+	@media (max-width: 768px) {
+		0,0 50%,0   w,0 w,h 50%,h    0,h
+	}
+">
+	<h2>MediaQuery</h2>
+</section>
+
+<section>
+	
 </section>
 
 </main>
 
+<footer role="contentinfo">
+	<small>©YusukeHirao, MIT License.</small>
+</footer>
+
+<a href="https://github.com/YusukeHirao/polycon"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+
+<script src="//code.jquery.com/jquery-2.2.3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.3.2/js/tether.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
 <script src="dist/polycon.min.js"></script>
 <script>
 !function () {
 	'use strict';
+
+	// Write style and attributes
+	$('[data-polycon]').each(function () {
+		var $this = $(this);
+		var tagName = this.nodeName.toLowerCase();
+		var points = $this.data('points');
+		var code = '<' + tagName + ' data-points="' + points + '">...</' + tagName + '>'
+		code = code.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/^\n+|\s+$/g, '');
+		$this.append('<pre><code class="html">' + code + '</code><pre>');
+		var style = $this.attr('style');
+		var className = $this.attr('class');
+		var styleCode = '.' + className + ' {\n' + style.replace(/^\n+|\s+$/g, '') + '\n}';
+		$this.append('<pre><code class="css">' + styleCode + '</code><pre>');
+	});
+
+	// syntax highlight
 	hljs.initHighlightingOnLoad();
+
+	// main code
 	polycon('[data-polycon]');
+
 }();
 </script>
 </body>

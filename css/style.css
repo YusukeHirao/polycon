@@ -1,0 +1,19 @@
+body {
+  font-family: Montserrat, sans-serif; }
+
+h1 {
+  font-weight: bold; }
+
+.container {
+  padding-top: 30px; }
+
+[data-polycon] {
+  margin-top: 30px; }
+  [data-polycon] h2 {
+    color: #fff; }
+
+footer {
+  padding: 30px 0; }
+  footer small {
+    display: block;
+    text-align: center; }
