@@ -18,16 +18,34 @@ const polygonMap: WeakMap<Polycon, SVGPolygonElement> = new WeakMap;
 
 export default class Polycon {
 
+	/**
+	 * An unique id in DOM tree (But this isn't a attriblute value of `id`)
+	 */
 	private _id: string;
 
+	/**
+	 * Width of this element
+	 */
 	private _width: number;
 
+	/**
+	 * Height of this element
+	 */
 	private _height: number;
 
+	/**
+	 * Points (Vertices)
+	 */
 	private _points: FlexPointList;
 
+	/**
+	 * A source path of background image
+	 */
 	private _backgroundImage: string;
 
+	/**
+	 * A color of background
+	 */
 	private _backgroundColor: string;
 
 	/**
@@ -35,6 +53,11 @@ export default class Polycon {
 	 */
 	private _rafid: number;
 
+	/**
+	 * Create a new instance or instance list
+	 *
+	 * @param selector A selector string or an element or element List
+	 */
 	public static new (selector: DOMSelector): Polycon | Polycon[] {
 		let nodeList: NodeListOf<Element>;
 		if (selector instanceof Node) {
@@ -56,10 +79,16 @@ export default class Polycon {
 	}
 
 
+	/**
+	 * Create string of UUID
+	 */
 	private static _createUUID (): string {
 		return Math.round(Date.now() * Math.random()).toString(36);
 	}
 
+	/**
+	 * Get path of background image from an element
+	 */
 	private static _getBackgroundImagePath (el: HTMLElement): string {
 		const style: CSSStyleDeclaration = window.getComputedStyle(el);
 		const styleValue: string = style.getPropertyValue('background-image');
@@ -74,12 +103,37 @@ export default class Polycon {
 		return path || '';
 	}
 
+	/**
+	 * Get color of background from an element
+	 */
 	private static _getBackgroundColor (el: HTMLElement): string {
 		const style: CSSStyleDeclaration = window.getComputedStyle(el);
 		const colorCode: string = style.getPropertyValue('background-color');
 		return colorCode || '';
 	}
 
+	/**
+	 * Create a `<style>` element "only once" for `Polycon` elements
+	 */
+	private static _setStyle (): void {
+		let style: HTMLStyleElement = document.querySelector(STYLE_SELECTOR) as HTMLStyleElement;
+		if (!style) {
+			const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
+			style = document.createElement('style');
+			style.setAttribute(ATTRIBUTE_NAME, STYLE_NODE_NAME);
+			head.appendChild(style);
+			const sheet: CSSStyleSheet = style.sheet as CSSStyleSheet;
+			sheet.insertRule(`${ROOT_SELECTOR} { position: relative; background: none !important; }`, sheet.rules.length);
+			sheet.insertRule(`${ROOT_SELECTOR} > * { position: relative; z-index: 1; }`, sheet.rules.length);
+			sheet.insertRule(`${ROOT_SELECTOR} > ${BACKGROUND_SELECTOR} { position: absolute; z-index: 0; top: 0; left: 0; }`, sheet.rules.length);
+		}
+	}
+
+	/**
+	 * create a `Polycon` element
+	 *
+	 * @param el An element
+	 */
 	constructor (el: Element) {
 		if (!(el instanceof Element)) {
 			throw new TypeError(`Invalid argument type`);
@@ -92,39 +146,54 @@ export default class Polycon {
 		this._styleTransport();
 		this._createSVG();
 		this._setPoints(el.getAttribute('data-points'));
-		this._setStyle();
+		Polycon._setStyle();
 		el.setAttribute(ATTRIBUTE_NAME, ROOT_NODE_NAME);
 		window.addEventListener('resize', this._onResize.bind(this), false);
 	}
 
+	/**
+	 * A corresponding element
+	 */
 	public set el (el: Element) {
 		rootMap.set(this, el);
 	}
-
 	public get el (): Element {
 		return rootMap.get(this);
 	}
 
+	/**
+	 * An innerHTML string of corresponding element
+	 *
+	 * @readonly
+	 */
 	public get innerHTML (): string {
 		return this.el.innerHTML;
 	}
 
+	/**
+	 * A polygonal SVG element
+	 */
 	public set svg (svg: SVGSVGElement) {
 		svgMap.set(this, svg);
 	}
-
 	public get svg (): SVGSVGElement {
 		return svgMap.get(this);
 	}
 
+	/**
+	 * An element of `<polygon>` in SVG element
+	 */
 	public set polygon (polygon: SVGPolygonElement) {
 		polygonMap.set(this, polygon);
 	}
-
 	public get polygon (): SVGPolygonElement {
 		return polygonMap.get(this);
 	}
 
+	/**
+	 * Inheritance of styles
+	 *
+	 */
 	private _styleTransport (): void {
 		const el: HTMLElement = this.el as HTMLElement;
 		this._backgroundImage = Polycon._getBackgroundImagePath(el);
@@ -132,21 +201,20 @@ export default class Polycon {
 	}
 
 	/**
+	 * Create a SVG element for psuedo-background
 	 *
 	 * ```html
-	 * <svg class="background-polygon" role="presentation">
+	 * <svg data-polycon-node="background" role="presentation" width="..." height="...">
+	 * 	<polygon points="......" fill="..." />
 	 * 	<defs>
-	 * 		<pattern id="bg04" patternUnits="userSpaceOnUse" x="0" y="0" width="4" height="4">
-	 * 			<image x="0" y="0" width="2" height="2" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="bg.png" result="img"/>
+	 * 		<pattern id="..." patternUnits="userSpaceOnUse" x="0" y="0" width="..." height="...">
+	 * 			<image x="0" y="0" width="..." height="..." xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="..."/>
 	 * 		</pattern>
 	 * 	</defs>
-	 * 	<polygon data-points="0,-120 71%,0 100%,-120 100%,h+20 29%,h+80 0,h" />
 	 * </svg>
 	 * ```
 	 */
 	private _createSVG (): void {
-		let fill: string;
-
 		const svg: SVGSVGElement = document.createElementNS(NS_SVG, 'svg') as SVGSVGElement;
 		svg.setAttribute('role', 'presentation');
 		svg.setAttribute(ATTRIBUTE_NAME, BACKGROUND_NODE_NAME);
@@ -156,6 +224,7 @@ export default class Polycon {
 		const polygon: SVGPolygonElement = document.createElementNS(NS_SVG, 'polygon') as SVGPolygonElement;
 		svg.appendChild(polygon);
 
+		let fill: string;
 		if (this._backgroundImage) {
 			const fillId: string = `fill-${this._id}`;
 			this._patternImage(svg, fillId);
@@ -174,6 +243,9 @@ export default class Polycon {
 		this.polygon = polygon;
 	}
 
+	/**
+	 * Create a pattern for background image
+	 */
 	private _patternImage (svg: SVGSVGElement, id: string): void {
 		const defs: SVGDefsElement = document.createElementNS(NS_SVG, 'defs') as SVGDefsElement;
 		const pattern: SVGPatternElement = document.createElementNS(NS_SVG, 'pattern') as SVGPatternElement;
@@ -196,6 +268,14 @@ export default class Polycon {
 		img.src = this._backgroundImage;
 	}
 
+	/**
+	 * Set image sizes when loaded image
+	 *
+	 * @param width Width of loaded background image
+	 * @param height Height of loaded background image
+	 * @param pattern `<pattern>` element for background image
+	 * @param image `<image>` element for background image
+	 */
 	private _onLoadedImage ({ width, height }: HTMLImageElement, pattern: SVGPatternElement, image: SVGImageElement): void {
 		const ratio: number = window.devicePixelRatio || 1;
 		pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width / ratio);
@@ -204,26 +284,15 @@ export default class Polycon {
 		image.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, height / ratio);
 	}
 
-	private _setStyle (): void {
-		let style: HTMLStyleElement = document.querySelector(STYLE_SELECTOR) as HTMLStyleElement;
-		if (!style) {
-			const head: HTMLHeadElement = document.getElementsByTagName('head')[0];
-			style = document.createElement('style');
-			style.setAttribute(ATTRIBUTE_NAME, STYLE_NODE_NAME);
-			head.appendChild(style);
-			const sheet: CSSStyleSheet = style.sheet as CSSStyleSheet;
-			sheet.insertRule(`${ROOT_SELECTOR} { position: relative; background: none !important; }`, sheet.rules.length);
-			sheet.insertRule(`${ROOT_SELECTOR} > * { position: relative; z-index: 1; }`, sheet.rules.length);
-			sheet.insertRule(`${ROOT_SELECTOR} > ${BACKGROUND_SELECTOR} { position: absolute; z-index: 0; top: 0; left: 0; }`, sheet.rules.length);
-		}
-	}
-
+	/**
+	 * Set points(vertices) at first time
+	 */
 	private _setPoints (points: string): void {
 		this._points = new FlexPointList(points);
 		const l: number = this._points.length;
 		const pointsAttr: SVGPointList = this.polygon.points;
 		for (let i: number = 0; i < l; i++) {
-			const { newPoint }: UpdateInfo = this._points.isUpdated(i, this._width, this._height);
+			const { newPoint }: UpdateInfo = this._points.update(i, this._width, this._height);
 			const point: SVGPoint = this.svg.createSVGPoint();
 			point.x = newPoint.x;
 			point.y = newPoint.y;
@@ -231,6 +300,9 @@ export default class Polycon {
 		}
 	}
 
+	/**
+	 * Update points(vertices)
+	 */
 	private _update (): void {
 		const rect: ClientRect = this.el.getBoundingClientRect();
 		this._width = rect.width;
@@ -243,7 +315,7 @@ export default class Polycon {
 		const l: number = this._points.length;
 		const pointsAttr: SVGPointList = this.polygon.points;
 		for (let i: number = 0; i < l; i++) {
-			const { isChanged, newPoint }: UpdateInfo = this._points.isUpdated(i, this._width, this._height);
+			const { isChanged, newPoint }: UpdateInfo = this._points.update(i, this._width, this._height);
 			if (isChanged) {
 				const point: SVGPoint = this.svg.createSVGPoint();
 				point.x = newPoint.x;
@@ -253,6 +325,9 @@ export default class Polycon {
 		}
 	}
 
+	/**
+	 * A resize handler
+	 */
 	private _onResize (e: UIEvent): void {
 		if (window.requestAnimationFrame) {
 			if (window.cancelAnimationFrame) {

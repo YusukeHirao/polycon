@@ -14,6 +14,8 @@ export default class FlexPoint {
 	private _y: FlexNumber;
 
 	/**
+	 * Flexible two-dimensional coordinates
+	 *
 	 * @param x x-coordinate
 	 * @param y y-coordinate
 	 */
