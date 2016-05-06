@@ -12,18 +12,35 @@
 
 <main class="container">
 
-	<h1>Polycon</h1>
+<h1>Polycon</h1>
 
-	<section class="sec01" style="background: #D04D64">
-		<h2>a polygonal container</h2>
-		<pre>
-			<code class="css">
-				.sec01 {
-					background: #D04D64;
-				}
-			</code>
-		</pre>
-	</section>
+<section
+	data-polycon
+	class="sec01"
+	style="
+		background: #D04D64;
+		padding: 50px;
+	"
+	data-points="
+		0,0 10%,50 20%,0 30%,50 40%,0 50%,50 60%,0 70%,50 80%,0 90%,50
+		w,0
+		w,h 90%,h-50 80%,h 70%,h-50 60%,h 50%,h-50 40%,h 30%,h-50 20%,h 10%,h-50
+		0,h
+	"
+	>
+<h2>a polygonal container</h2>
+<pre>
+<code class="html">&lt;section data-points=&quot;0,0 10%,50 20%,0 30%,50 40%,0 50%,50 60%,0 70%,50 80%,0 90%,50 w,0 w,h 0,h&quot;&gt;...&lt;/section&gt;
+</code>
+</pre>
+<pre>
+<code class="css">.sec01 {
+	background: #D04D64;
+	padding: 50px;
+}
+</code>
+</pre>
+</section>
 
 </main>
 
@@ -33,6 +50,7 @@
 !function () {
 	'use strict';
 	hljs.initHighlightingOnLoad();
+	polycon('[data-polycon]');
 }();
 </script>
 </body>
