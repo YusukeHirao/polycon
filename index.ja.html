@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<title>polycon</title>
 	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700">
+	<link rel="stylesheet" href="//fonts.googleapis.com/earlyaccess/notosansjapanese.css">
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/monokai-sublime.min.css">
 	<link rel="stylesheet" href="css/style.css">
@@ -16,7 +17,7 @@
 
 <header class="container" role="banner">
 	<h1>Polycon</h1>
-	<p>Create polygonal container.</p>
+	<p><em>ポリ</em>ゴン<em>コン</em>テナ</p>
 	<p><a href="http://badge.fury.io/js/polycon"><img src="https://badge.fury.io/js/polycon.svg" alt="NPM version"></a>
 	<a href="https://travis-ci.org/YusukeHirao/polycon"><img src="https://travis-ci.org/YusukeHirao/polycon.svg?branch=master" alt="Build Status"></a>
 	<a href="https://david-dm.org/YusukeHirao/polycon"><img src="https://david-dm.org/YusukeHirao/polycon.svg" alt="Dependency Status"></a>
@@ -37,15 +38,15 @@ data-points="
 "
 >
 <div class="container">
-<h2>Getting started</h2>
-<h3>Browser</h3>
+<h2>使い方</h2>
+<h3>ブラウザ</h3>
 <pre>
 <code class="html">&lt;script src=&quot;polycon.min.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
 polycon('selector');
 &lt;/script&gt;</code>
 </pre>
-<h3>Node.js <small>(with Webpack, Browserify and Rollup etc...)</small></h3>
+<h3>WebpackやBrowserify、Rollupなどの場合</small></h3>
 <pre>
 <code class="js">import Polycon from 'polycon';
 
@@ -72,14 +73,14 @@ data-points="
 "
 >
 <div class="container">
-<h2>Markup</h2>
+<h2>マークアップ</h2>
 <pre>
-<code class="html">&lt;div data-points="[coordinates for each apexes]" &gt;...&lt;/div&gt;</code>
+<code class="html">&lt;div data-points="[頂点座標]" &gt;...&lt;/div&gt;</code>
 </pre>
-<p>The <code>data-points</code> attribute defines the x and y coordinates for each apexes of the polygon.</p>
-<p>Separate the x and y by a comma, each apexes by spaces. <code>x1,y1 x2,y2 x3,y3...</code></p>
-<p>Numeric value without unit (<code>0</code>, <code>300</code>) is absolute pixel. Numeric value with percent (<code>30%</code>, <code>98%</code>) is relative value. Numeric value with alphabet and symbol (<code>w-30,h+30</code>) is offset number.</p>
-<p>Usable with media queries. <code>@media [mediaQueryString] { [coordinates for each apexes] } ...</code></p>
+<p><code>data-points</code> 属性に多角形の頂点のx,y座標を記述して下さい。</p>
+<p>xとyの間はカンマ区切り, 各頂点はスペース区切りになります。 <code>x1,y1 x2,y2 x3,y3...</code></p>
+<p>単位なし数値(<code>0</code>, <code>300</code>)は絶対値のピクセル数を表します。パーセント付き数値(<code>30%</code>, <code>98%</code>)は、xの場合は高さ、yの場合は幅からの相対値を表します。アルファベットとプラス・マイナス付きの数値(<code>w-30,h+30</code>)は、xの場合高さから、yの場合幅からのオフセット値となります。</p>
+<p>メディアクエリでレスポンシブな変更もできます。 <code>@media [メディアクエリ] { [頂点座標] } ...</code></p>
 </div>
 </section>
 

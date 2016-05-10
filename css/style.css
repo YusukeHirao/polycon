@@ -1,5 +1,6 @@
 body {
-  font-family: Montserrat, sans-serif; }
+  font-family: Montserrat, 'Noto Sans Japanese', sans-serif;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAALElEQVQIW2NkwAJevHjxnxFdHCQoISHBiCIBEwQphksgC8Il0AXBEtgEQRIA4MsXvj5Zb5sAAAAASUVORK5CYII=) fixed; }
 
 h1 {
   font-weight: bold; }
@@ -10,10 +11,15 @@ h1 {
 [data-polycon] {
   margin-top: 30px; }
   [data-polycon] h2 {
-    color: #fff; }
+    color: #fff;
+    margin-bottom: 10px; }
 
 footer {
   padding: 30px 0; }
   footer small {
     display: block;
     text-align: center; }
+
+[lang=ja] em {
+  font-weight: bold;
+  font-style: normal; }
