@@ -1,11 +1,16 @@
 polycon
 ===
 
+[![NPM version](https://badge.fury.io/js/polycon.svg)](http://badge.fury.io/js/polycon)
 [![Build Status](https://travis-ci.org/YusukeHirao/polycon.svg?branch=master)](https://travis-ci.org/YusukeHirao/polycon)
 [![Dependency Status](https://david-dm.org/YusukeHirao/polycon.svg)](https://david-dm.org/YusukeHirao/polycon)
 [![devDependency Status](https://david-dm.org/YusukeHirao/polycon/dev-status.svg)](https://david-dm.org/YusukeHirao/polycon#info=devDependencies)
 
-Insert a polygonal container to DOM.
+Create polygonal container.
+
+## Demo and Description
+
+[English](http://yusukehirao.github.io/polycon/) | [Japanese](http://yusukehirao.github.io/polycon/index.ja.html)
 
 * * *
 
@@ -66,7 +71,7 @@ method|parameter|return
 
 mame|value|description
 ---|---|---
-`data-points`|flex points|`points` attribute value of the extended to the `<polygon>` svg elements so as to correspond to a relative value
+`data-points`|flex points|`points` attribute value of the extended to the `<polygon>` svg elements so as to correspond to a relative value. Separate the x and y by a comma, each apexes by spaces `x1,y1 x2,y2 x3,y3...`. Numeric value without unit (`0`, `300`) is absolute pixel. Numeric value with percent (`30%`, `98%`) is relative value. Numeric value with alphabet and symbol (`w-30,h+30`) is offset number.<br />Usable with media queries `@media [mediaQueryString] { [coordinates for each apexes] } ...`.
 
 ### StyleSheet
 
