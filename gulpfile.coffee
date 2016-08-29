@@ -41,6 +41,8 @@ gulp.task 'pack', ->
         new webpack.optimize.AggressiveMergingPlugin()
       ]
       output: filename: 'polycon.js'
+    ,
+      webpack
     .pipe header banner, pkg: pkg, moment: moment, git: git
     .pipe gulp.dest './dist/'
     .pipe gulp.dest "./dist/v#{pkg.version}/"
