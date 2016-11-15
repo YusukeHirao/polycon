@@ -2,7 +2,6 @@ gulp = require 'gulp'
 wpGilp = require 'webpack-stream'
 webpack = require 'webpack'
 ts = require 'gulp-typescript'
-tsc = require 'typescript'
 babel = require 'gulp-babel'
 uglify = require 'gulp-uglify'
 rename = require 'gulp-rename'
@@ -24,12 +23,9 @@ banner = """/**!
 
 """
 
-project = ts.createProject './tsconfig.json',
-  typescript: tsc
-
 gulp.task 'ts', ->
-  project.src()
-    .pipe ts project
+  gulp.src('src/*.ts')
+    .pipe ts 'tsconfig.json'
     .pipe babel presets: ['es2015']
     .pipe gulp.dest './lib/'
 
