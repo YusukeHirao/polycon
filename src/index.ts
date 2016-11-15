@@ -5,11 +5,10 @@ import { DOMSelector } from './types';
  *
  */
 function polycon (selector: DOMSelector): Polycon | Polycon[] {
-	'use strict';
 	return Polycon.new(selector);
 }
 
 /**
  *
  */
-window['polycon'] = polycon;
+window['polycon'] = polycon; // tslint:disable-line:no-string-literal

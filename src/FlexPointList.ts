@@ -1,9 +1,30 @@
-import 'core-js/fn/weak-map';
 import 'core-js/fn/symbol';
+import 'core-js/fn/weak-map';
+
 import FlexPoint from './FlexPoint';
-import { Point, UpdateInfo, MediaQueryRuleList } from './types';
+import { MediaQueryRuleList, Point, UpdateInfo } from './types';
 
 export default class FlexPointList {
+
+	/**
+	 * Parse media query and value
+	 */
+	private static _mediaQueryParse (query: string): MediaQueryRuleList<string> {
+		const rules = query.match(/@media[^\{]+\{[^\}]+\}/g);
+		if (!rules) {
+			return { default: query };
+		}
+		const ruleList: MediaQueryRuleList<string> = {};
+		for (const rule of rules) {
+			const matches = rule.match(/@media([^\{]+)\{([^\}]+)\}/);
+			if (!matches) {
+				continue;
+			}
+			const [, condition, value] = matches;
+			ruleList[condition.trim()] = value.trim();
+		}
+		return ruleList;
+	}
 
 	/**
 	 * Flex points(vertices) of each media queries
@@ -14,26 +35,6 @@ export default class FlexPointList {
 	 * A list of current absolute points(vertices)
 	 */
 	private _currentAbsPoints: Point[] = [];
-
-	/**
-	 * Parse media query and value
-	 */
-	private static _mediaQueryParse (query: string): MediaQueryRuleList<string> {
-		const rules: RegExpMatchArray = query.match(/@media[^\{]+\{[^\}]+\}/g);
-		if (!rules) {
-			return { 'default': query };
-		}
-		const ruleList: MediaQueryRuleList<string> = {};
-		for (const rule of rules) {
-			const matches: RegExpMatchArray = rule.match(/@media([^\{]+)\{([^\}]+)\}/);
-			if (!matches) {
-				continue;
-			}
-			const [, condition, value]: string[] = matches;
-			ruleList[condition.trim()] = value.trim();
-		}
-		return ruleList;
-	}
 
 	/**
 	 * A list of flex points(vertices)
@@ -136,5 +137,3 @@ export default class FlexPointList {
 	}
 
 }
-
-

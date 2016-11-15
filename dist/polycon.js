@@ -1,7 +1,7 @@
 /**!
-* polycon - v0.2.1
-* revision: 8b533e59af9f3b198ed8a881c474b0e594d43177
-* update: 2016-08-29
+* polycon - v0.2.2
+* revision: bfd36b2e7625e991075600089c8d71739f504154
+* update: 2016-11-15
 * Author: Yusuke Hirao [http://yusukehirao.github.io/polycon/]
 * Github: https://github.com/YusukeHirao/polycon.git
 * License: Licensed under the MIT License
@@ -870,9 +870,9 @@ var ATTRIBUTE_NAME = 'data-polycon-node';
 var STYLE_NODE_NAME = 'style';
 var ROOT_NODE_NAME = 'root';
 var BACKGROUND_NODE_NAME = 'background';
-var STYLE_SELECTOR = '[' + ATTRIBUTE_NAME + '="' + STYLE_NODE_NAME + '"]';
-var ROOT_SELECTOR = '[' + ATTRIBUTE_NAME + '="' + ROOT_NODE_NAME + '"]';
-var BACKGROUND_SELECTOR = '[' + ATTRIBUTE_NAME + '="' + BACKGROUND_NODE_NAME + '"]';
+var STYLE_SELECTOR = "[" + ATTRIBUTE_NAME + "=\"" + STYLE_NODE_NAME + "\"]";
+var ROOT_SELECTOR = "[" + ATTRIBUTE_NAME + "=\"" + ROOT_NODE_NAME + "\"]";
+var BACKGROUND_SELECTOR = "[" + ATTRIBUTE_NAME + "=\"" + BACKGROUND_NODE_NAME + "\"]";
 var SVG_LENGTHTYPE_PX = SVGLength.SVG_LENGTHTYPE_PX;
 var rootMap = new WeakMap();
 var svgMap = new WeakMap();
@@ -888,16 +888,17 @@ var Polycon = function () {
         _classCallCheck(this, Polycon);
 
         if (!(el instanceof Element)) {
-            throw new TypeError('Invalid argument type');
+            throw new TypeError("Invalid argument type");
         }
         var rect = el.getBoundingClientRect();
+        var points = el.getAttribute('data-points') || '';
         this._id = Polycon._createUUID();
         this._width = rect.width;
         this._height = rect.height;
         this.el = el;
         this._styleTransport();
         this._createSVG();
-        this._setPoints(el.getAttribute('data-points'));
+        this._setPoints(points);
         Polycon._setStyle();
         el.setAttribute(ATTRIBUTE_NAME, ROOT_NODE_NAME);
         window.addEventListener('resize', this._onResize.bind(this), false);
@@ -910,7 +911,7 @@ var Polycon = function () {
 
 
     _createClass(Polycon, [{
-        key: '_styleTransport',
+        key: "_styleTransport",
 
         /**
          * Inheritance of styles
@@ -937,7 +938,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_createSVG',
+        key: "_createSVG",
         value: function _createSVG() {
             var svg = document.createElementNS(NS_SVG, 'svg');
             svg.setAttribute('role', 'presentation');
@@ -946,11 +947,11 @@ var Polycon = function () {
             svg.height.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, this._height);
             var polygon = document.createElementNS(NS_SVG, 'polygon');
             svg.appendChild(polygon);
-            var fill = void 0;
+            var fill = '';
             if (this._backgroundImage) {
-                var fillId = 'fill-' + this._id;
+                var fillId = "fill-" + this._id;
                 this._patternImage(svg, fillId);
-                fill = 'url(#' + fillId + ')';
+                fill = "url(#" + fillId + ")";
             } else if (this._backgroundColor) {
                 fill = this._backgroundColor;
             }
@@ -966,7 +967,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_patternImage',
+        key: "_patternImage",
         value: function _patternImage(svg, id) {
             var defs = document.createElementNS(NS_SVG, 'defs');
             var pattern = document.createElementNS(NS_SVG, 'pattern');
@@ -995,10 +996,10 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_onLoadedImage',
+        key: "_onLoadedImage",
         value: function _onLoadedImage(_ref, pattern, image) {
-            var width = _ref.width;
-            var height = _ref.height;
+            var width = _ref.width,
+                height = _ref.height;
 
             var ratio = window.devicePixelRatio || 1;
             pattern.width.baseVal.newValueSpecifiedUnits(SVG_LENGTHTYPE_PX, width / ratio);
@@ -1011,20 +1012,21 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_setPoints',
+        key: "_setPoints",
         value: function _setPoints(points) {
             this._points = new FlexPointList_1.default(points);
             var l = this._points.length;
             var pointsAttr = this.polygon.points;
             for (var i = 0; i < l; i++) {
-                var _points$update = this._points.update(i, this._width, this._height);
+                var _points$update = this._points.update(i, this._width, this._height),
+                    newPoint = _points$update.newPoint;
 
-                var newPoint = _points$update.newPoint;
-
-                var point = this.svg.createSVGPoint();
-                point.x = newPoint.x;
-                point.y = newPoint.y;
-                pointsAttr.appendItem(point);
+                if (newPoint) {
+                    var point = this.svg.createSVGPoint();
+                    point.x = newPoint.x;
+                    point.y = newPoint.y;
+                    pointsAttr.appendItem(point);
+                }
             }
         }
         /**
@@ -1032,7 +1034,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_update',
+        key: "_update",
         value: function _update() {
             var rect = this.el.getBoundingClientRect();
             this._width = rect.width;
@@ -1043,12 +1045,11 @@ var Polycon = function () {
             var l = this._points.length;
             var pointsAttr = this.polygon.points;
             for (var i = 0; i < l; i++) {
-                var _points$update2 = this._points.update(i, this._width, this._height);
+                var _points$update2 = this._points.update(i, this._width, this._height),
+                    isChanged = _points$update2.isChanged,
+                    newPoint = _points$update2.newPoint;
 
-                var isChanged = _points$update2.isChanged;
-                var newPoint = _points$update2.newPoint;
-
-                if (isChanged) {
+                if (isChanged && newPoint) {
                     var point = this.svg.createSVGPoint();
                     point.x = newPoint.x;
                     point.y = newPoint.y;
@@ -1061,7 +1062,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_onResize',
+        key: "_onResize",
         value: function _onResize(e) {
             if (window.requestAnimationFrame) {
                 if (window.cancelAnimationFrame) {
@@ -1073,7 +1074,7 @@ var Polycon = function () {
             }
         }
     }, {
-        key: 'el',
+        key: "el",
 
         /**
          * A corresponding element
@@ -1091,7 +1092,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: 'innerHTML',
+        key: "innerHTML",
         get: function get() {
             return this.el.innerHTML;
         }
@@ -1100,7 +1101,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: 'svg',
+        key: "svg",
         set: function set(svg) {
             svgMap.set(this, svg);
         },
@@ -1112,7 +1113,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: 'polygon',
+        key: "polygon",
         set: function set(polygon) {
             polygonMap.set(this, polygon);
         },
@@ -1120,7 +1121,7 @@ var Polycon = function () {
             return polygonMap.get(this);
         }
     }], [{
-        key: 'new',
+        key: "new",
         value: function _new(selector) {
             var nodeList = void 0;
             if (selector instanceof Node) {
@@ -1130,7 +1131,7 @@ var Polycon = function () {
             } else if (selector instanceof NodeList) {
                 nodeList = selector;
             } else {
-                throw new TypeError('Invalid argument type');
+                throw new TypeError("Invalid argument type");
             }
             var polycons = [];
             var _iteratorNormalCompletion = true;
@@ -1165,7 +1166,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_createUUID',
+        key: "_createUUID",
         value: function _createUUID() {
             return Math.round(Date.now() * Math.random()).toString(36);
         }
@@ -1174,7 +1175,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_getBackgroundImagePath',
+        key: "_getBackgroundImagePath",
         value: function _getBackgroundImagePath(el) {
             var style = window.getComputedStyle(el);
             var styleValue = style.getPropertyValue('background-image');
@@ -1186,9 +1187,8 @@ var Polycon = function () {
                 return '';
             }
 
-            var _matchArray = _slicedToArray(matchArray, 3);
-
-            var path = _matchArray[2];
+            var _matchArray = _slicedToArray(matchArray, 3),
+                path = _matchArray[2];
 
             return path || '';
         }
@@ -1197,7 +1197,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_getBackgroundColor',
+        key: "_getBackgroundColor",
         value: function _getBackgroundColor(el) {
             var style = window.getComputedStyle(el);
             var colorCode = style.getPropertyValue('background-color');
@@ -1208,7 +1208,7 @@ var Polycon = function () {
          */
 
     }, {
-        key: '_setStyle',
+        key: "_setStyle",
         value: function _setStyle() {
             var style = document.querySelector(STYLE_SELECTOR);
             if (!style) {
@@ -1217,9 +1217,9 @@ var Polycon = function () {
                 style.setAttribute(ATTRIBUTE_NAME, STYLE_NODE_NAME);
                 head.appendChild(style);
                 var sheet = style.sheet;
-                sheet.insertRule(ROOT_SELECTOR + ' { position: relative; background: none !important; }', sheet.rules.length);
-                sheet.insertRule(ROOT_SELECTOR + ' > * { position: relative; z-index: 1; }', sheet.rules.length);
-                sheet.insertRule(ROOT_SELECTOR + ' > ' + BACKGROUND_SELECTOR + ' { position: absolute; z-index: 0; top: 0; left: 0; }', sheet.rules.length);
+                sheet.insertRule(ROOT_SELECTOR + " { position: relative; background: none !important; }", sheet.rules.length);
+                sheet.insertRule(ROOT_SELECTOR + " > * { position: relative; z-index: 1; }", sheet.rules.length);
+                sheet.insertRule(ROOT_SELECTOR + " > " + BACKGROUND_SELECTOR + " { position: absolute; z-index: 0; top: 0; left: 0; }", sheet.rules.length);
             }
         }
     }]);
@@ -1276,12 +1276,11 @@ var FlexNumber = function () {
             this._rate = parseFloat(anyValue.replace('%', ''));
             this._type = 'rate';
         } else if (/^[a-z]+(?:\s*[\-\+]\s*-?\s*[0-9]*\.?[0-9]+)?\s*$/i.test(anyValue)) {
-            var _anyValue$match = anyValue.match(/^[a-z]+(?:\s*([\-\+])\s*(-?[0-9]*\.?[0-9]+))?$/i);
+            var matchedValue = anyValue.match(/^[a-z]+(?:\s*([\-\+])\s*(-?[0-9]*\.?[0-9]+))?$/i);
 
-            var _anyValue$match2 = _slicedToArray(_anyValue$match, 3);
-
-            var sign = _anyValue$match2[1];
-            var numericValue = _anyValue$match2[2];
+            var _matchedValue = _slicedToArray(matchedValue, 3),
+                sign = _matchedValue[1],
+                numericValue = _matchedValue[2];
 
             var value = parseFloat(numericValue) || 0;
             if (sign === '-') {
@@ -1388,8 +1387,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-__webpack_require__(32);
 __webpack_require__(53);
+__webpack_require__(32);
 var FlexPoint_1 = __webpack_require__(51);
 
 var FlexPointList = function () {
@@ -1417,7 +1416,7 @@ var FlexPointList = function () {
 
 
     _createClass(FlexPointList, [{
-        key: 'update',
+        key: "update",
 
         /**
          * Updating a dimension
@@ -1466,7 +1465,7 @@ var FlexPointList = function () {
                 }
             } else {
                 if (window.console) {
-                    window.console.warn('[' + index + ']th point is undefined');
+                    window.console.warn("[" + index + "]th point is undefined");
                 }
             }
             return info;
@@ -1478,7 +1477,7 @@ var FlexPointList = function () {
          */
 
     }, {
-        key: '_parse',
+        key: "_parse",
         value: function _parse(query) {
             var rules = FlexPointList._mediaQueryParse(query);
             for (var condition in rules) {
@@ -1498,12 +1497,10 @@ var FlexPointList = function () {
                                 continue;
                             }
 
-                            var _point$split = point.split(',');
-
-                            var _point$split2 = _slicedToArray(_point$split, 2);
-
-                            var x = _point$split2[0];
-                            var y = _point$split2[1];
+                            var _point$split = point.split(','),
+                                _point$split2 = _slicedToArray(_point$split, 2),
+                                x = _point$split2[0],
+                                y = _point$split2[1];
 
                             if (condition === 'default') {
                                 this._currentAbsPoints.push({ x: NaN, y: NaN });
@@ -1528,7 +1525,7 @@ var FlexPointList = function () {
             }
         }
     }, {
-        key: 'length',
+        key: "length",
 
         /**
          * The number of points(vertices)
@@ -1537,11 +1534,11 @@ var FlexPointList = function () {
             return this._flexPoints['default'].length;
         }
     }], [{
-        key: '_mediaQueryParse',
+        key: "_mediaQueryParse",
         value: function _mediaQueryParse(query) {
             var rules = query.match(/@media[^\{]+\{[^\}]+\}/g);
             if (!rules) {
-                return { 'default': query };
+                return { default: query };
             }
             var ruleList = {};
             var _iteratorNormalCompletion2 = true;
@@ -1557,10 +1554,9 @@ var FlexPointList = function () {
                         continue;
                     }
 
-                    var _matches = _slicedToArray(matches, 3);
-
-                    var condition = _matches[1];
-                    var value = _matches[2];
+                    var _matches = _slicedToArray(matches, 3),
+                        condition = _matches[1],
+                        value = _matches[2];
 
                     ruleList[condition.trim()] = value.trim();
                 }
@@ -2620,14 +2616,12 @@ var Polycon_1 = __webpack_require__(49);
  *
  */
 function polycon(selector) {
-  'use strict';
-
   return Polycon_1.default.new(selector);
 }
 /**
  *
  */
-window['polycon'] = polycon;
+window['polycon'] = polycon; // tslint:disable-line:no-string-literal
 
 /***/ }
 /******/ ]);

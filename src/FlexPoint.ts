@@ -1,4 +1,5 @@
 import * as types from './types';
+
 import FlexNumber from './FlexNumber';
 
 export default class FlexPoint {
@@ -39,5 +40,3 @@ export default class FlexPoint {
 	}
 
 }
-
-

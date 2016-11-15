@@ -30,7 +30,7 @@ export interface UpdateInfo {
 	/**
 	 * new point
 	 */
-	newPoint: Point;
+	newPoint: Point | null;
 }
 
 /**

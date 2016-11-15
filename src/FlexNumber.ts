@@ -41,8 +41,9 @@ export default class FlexNumber {
 			this._rate = parseFloat(anyValue.replace('%', ''));
 			this._type = 'rate';
 		} else if (/^[a-z]+(?:\s*[\-\+]\s*-?\s*[0-9]*\.?[0-9]+)?\s*$/i.test(anyValue)) {
-			const [, sign, numericValue]: string[] = anyValue.match(/^[a-z]+(?:\s*([\-\+])\s*(-?[0-9]*\.?[0-9]+))?$/i);
-			const value: number = parseFloat(numericValue) || 0;
+			const matchedValue = anyValue.match(/^[a-z]+(?:\s*([\-\+])\s*(-?[0-9]*\.?[0-9]+))?$/i)!;
+			const [, sign, numericValue] = matchedValue;
+			const value = parseFloat(numericValue) || 0;
 			if (sign === '-') {
 				this._offset = value * -1;
 			} else {
