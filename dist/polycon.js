@@ -1,6 +1,6 @@
 /**!
-* polycon - v0.2.2
-* revision: bfd36b2e7625e991075600089c8d71739f504154
+* polycon - v0.2.3
+* revision: cced72aa4f7be70117433d69eb21b8778e9958b9
 * update: 2016-11-15
 * Author: Yusuke Hirao [http://yusukehirao.github.io/polycon/]
 * Github: https://github.com/YusukeHirao/polycon.git
